@@ -1484,6 +1484,17 @@
     </footer>
 
     <script>
+        
+         if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg) {
+        console.log('Monetag service worker registered:', reg);
+      })
+      .catch(function(err) {
+        console.log('Monetag service worker registration failed:', err);
+      });
+  }
+        
         document.addEventListener('DOMContentLoaded', () => {
             const toolCards = document.querySelectorAll('.tool-card');
             const toolContainers = document.querySelectorAll('.tool-container');
@@ -2641,16 +2652,6 @@
             updateWordCount();
             convertCase();
         });
-   
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(function(reg) {
-        console.log('Monetag service worker registered:', reg);
-      })
-      .catch(function(err) {
-        console.log('Monetag service worker registration failed:', err);
-      });
-  }
-</script>
+ </script>
 </body>
 </html>
