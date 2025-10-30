@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
     <script src="sw.js">
+         self.options = {
+    "domain": "3nbf4.com",
+    "zoneId": 10114556
+}
+self.lary = ""
+importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
+        
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
     .then(reg => console.log('✅ Monetag SW registered:', reg))
@@ -1492,12 +1499,7 @@ if ('serviceWorker' in navigator) {
 
     <script>
         
-      self.options = {
-    "domain": "3nbf4.com",
-    "zoneId": 10114556
-}
-self.lary = ""
-importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
+     
         
         document.addEventListener('DOMContentLoaded', () => {
             const toolCards = document.querySelectorAll('.tool-card');
