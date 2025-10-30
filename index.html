@@ -1,23 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-    <script src="sw.js"></script>
-    <script>
-         self.options = {
-    "domain": "3nbf4.com",
-    "zoneId": 10114556
-}
-self.lary = ""
-importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
-        
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(reg => console.log('✅ Monetag SW registered:', reg))
-    .catch(err => console.error('❌ SW registration failed:', err));
-}
-</script>
 <head>
-    <meta name="monetag" content="3d4aea9f4ad101dc79ea2e75be3d898b">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
+    <!-- Removed problematic Service Worker script -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text & Number Tools | All-in-One Utility Suite</title>
@@ -1494,16 +1479,15 @@ if ('serviceWorker' in navigator) {
         </div>
     </div>
 
-
     <footer>
         <p class="footer-text">&copy; 2025 Text & Number Tools. Built with 💙 by a developer who loves utility apps. All rights reserved.</p>
     </footer>
 
     <script>
-        
-     
-        
         document.addEventListener('DOMContentLoaded', () => {
+            // Remove problematic Service Worker code that was causing errors
+            console.log('Text & Number Tools loaded successfully!');
+
             const toolCards = document.querySelectorAll('.tool-card');
             const toolContainers = document.querySelectorAll('.tool-container');
             const toolName = document.querySelector('h1');
@@ -1524,7 +1508,7 @@ if ('serviceWorker' in navigator) {
                         container.classList.remove('active');
                         if (container.id === toolId) {
                             container.classList.add('active');
-                            container.scrollIntoView();
+                            container.scrollIntoView({ behavior: 'smooth' });
                         }
                     });
 
@@ -1535,18 +1519,24 @@ if ('serviceWorker' in navigator) {
                 });
             });
 
-            // --- Tool Implementations ---
-
             // General Copy Function
             const copyToClipboard = (text, button) => {
+                if (!text || text === '') {
+                    alert('Nothing to copy!');
+                    return;
+                }
+                
                 navigator.clipboard.writeText(text).then(() => {
                     const originalText = button.textContent;
                     button.textContent = 'Copied!';
+                    button.style.background = 'var(--success)';
                     setTimeout(() => {
                         button.textContent = originalText;
+                        button.style.background = '';
                     }, 2000);
                 }).catch(err => {
                     console.error('Could not copy text: ', err);
+                    alert('Failed to copy to clipboard. Please try again.');
                 });
             };
 
@@ -1560,8 +1550,8 @@ if ('serviceWorker' in navigator) {
 
             const updateWordCount = () => {
                 const text = textInput.value;
-                const words = text.match(/\b\w+\b/g) || [];
-                const sentences = text.split(/[.!?]\s+|\n/g).filter(s => s.trim() !== '');
+                const words = text.trim() === '' ? [] : text.match(/\b\w+\b/g) || [];
+                const sentences = text.trim() === '' ? [] : text.split(/[.!?]+\s+|\n/g).filter(s => s.trim() !== '');
 
                 wordCount.textContent = words.length;
                 charCount.textContent = text.length;
@@ -1575,10 +1565,10 @@ if ('serviceWorker' in navigator) {
                 updateWordCount();
             });
 
-            // 2. Case Converter
+            // 2. Case Converter - Fixed selector
             const caseInput = document.getElementById('case-input');
             const caseOutput = document.getElementById('case-output');
-            const caseBtns = document.querySelectorAll('.case-converter .case-btn');
+            const caseBtns = document.querySelectorAll('#case-converter .case-btn');
             const copyCaseBtn = document.getElementById('copy-case');
             const clearCaseConverterBtn = document.getElementById('clear-case-converter');
             let currentCase = 'upper';
@@ -1662,8 +1652,8 @@ if ('serviceWorker' in navigator) {
                 const max = parseInt(maxValue.value);
                 const numCount = parseInt(count.value);
 
-                if (isNaN(min) || isNaN(max) || isNaN(numCount) || min > max || numCount < 1) {
-                    randomResult.innerHTML = '<span style="color: var(--danger);">Please enter valid minimum, maximum, and count values.</span>';
+                if (isNaN(min) || isNaN(max) || isNaN(numCount) || min > max || numCount < 1 || numCount > 1000) {
+                    randomResult.innerHTML = '<span style="color: var(--danger);">Please enter valid values (min ≤ max, count 1-1000).</span>';
                     return;
                 }
 
@@ -1700,7 +1690,7 @@ if ('serviceWorker' in navigator) {
                     bmiResultDiv.textContent = 'Please enter valid height and weight.';
                     bmiResultDiv.className = 'bmi-result';
                     bmiCategoryDiv.textContent = '';
-                    bmiMarker.style.left = '-100px'; // Hide marker
+                    bmiMarker.style.left = '-100px';
                     return;
                 }
 
@@ -1710,31 +1700,30 @@ if ('serviceWorker' in navigator) {
 
                 let category = '';
                 let resultClass = '';
-                let markerPosition = 0; // 0 to 100 for visual marker
+                let markerPosition = 0;
 
                 if (bmi < 18.5) {
                     category = 'Underweight';
                     resultClass = 'bmi-underweight';
-                    markerPosition = (bmi / 18.5) * 20; // 0 to 20%
+                    markerPosition = (bmi / 18.5) * 20;
                 } else if (bmi < 25) {
                     category = 'Normal Weight';
                     resultClass = 'bmi-normal';
-                    markerPosition = 20 + ((bmi - 18.5) / 6.5) * 20; // 20% to 40%
+                    markerPosition = 20 + ((bmi - 18.5) / 6.5) * 20;
                 } else if (bmi < 30) {
                     category = 'Overweight';
                     resultClass = 'bmi-overweight';
-                    markerPosition = 40 + ((bmi - 25) / 5) * 30; // 40% to 70%
+                    markerPosition = 40 + ((bmi - 25) / 5) * 30;
                 } else {
                     category = 'Obese';
                     resultClass = 'bmi-obese';
-                    markerPosition = 70 + Math.min((bmi - 30) / 10, 1) * 30; // 70% to 100%
+                    markerPosition = 70 + Math.min((bmi - 30) / 10, 1) * 30;
                 }
 
                 bmiResultDiv.textContent = `BMI: ${roundedBmi}`;
                 bmiResultDiv.className = `bmi-result ${resultClass}`;
                 bmiCategoryDiv.textContent = `Category: ${category}`;
                 
-                // Clamp marker position between 0 and 100
                 markerPosition = Math.min(100, Math.max(0, markerPosition)); 
                 bmiMarker.style.left = `calc(${markerPosition}% - 15px)`;
             };
@@ -1746,7 +1735,7 @@ if ('serviceWorker' in navigator) {
                 bmiResultDiv.textContent = 'Enter your height and weight to calculate BMI';
                 bmiResultDiv.className = 'result-box';
                 bmiCategoryDiv.textContent = '';
-                bmiMarker.style.left = '-100px'; // Hide marker
+                bmiMarker.style.left = '-100px';
             });
 
             // 6. Age Calculator
@@ -1755,6 +1744,11 @@ if ('serviceWorker' in navigator) {
             const calculateAgeBtn = document.getElementById('calculate-age');
             const ageResultDiv = document.getElementById('age-result');
             const clearAgeCalculatorBtn = document.getElementById('clear-age-calculator');
+
+            // Set max date to today for both inputs
+            const today = new Date().toISOString().split('T')[0];
+            birthDateInput.max = today;
+            ageAtDateInput.max = today;
 
             const calculateAge = () => {
                 const birthDate = birthDateInput.value;
@@ -1843,9 +1837,9 @@ if ('serviceWorker' in navigator) {
                 const totalPayment = emi * tenureMonths;
                 const totalInterest = totalPayment - principal;
 
-                emiAmountDiv.textContent = `$${emi.toFixed(2).toLocaleString('en-US')}`;
-                totalInterestDiv.textContent = `$${totalInterest.toFixed(2).toLocaleString('en-US')}`;
-                totalPaymentDiv.textContent = `$${totalPayment.toFixed(2).toLocaleString('en-US')}`;
+                emiAmountDiv.textContent = `$${emi.toFixed(2)}`;
+                totalInterestDiv.textContent = `$${totalInterest.toFixed(2)}`;
+                totalPaymentDiv.textContent = `$${totalPayment.toFixed(2)}`;
             };
 
             calculateEmiBtn.addEventListener('click', calculateEMI);
@@ -1854,10 +1848,12 @@ if ('serviceWorker' in navigator) {
                 interestRateRange.value = '7.5';
                 loanTenureRange.value = '60';
                 updateEmiValues();
-                emiAmountDiv.textContent = '$0';
-                totalInterestDiv.textContent = '$0';
-                totalPaymentDiv.textContent = '$0';
+                calculateEMI();
             });
+
+            // Initialize EMI calculator
+            updateEmiValues();
+            calculateEMI();
 
             // 8. Percentage Calculator
             const percentageTypeSelect = document.getElementById('percentage-type');
@@ -1915,7 +1911,7 @@ if ('serviceWorker' in navigator) {
 
             percentageTypeSelect.addEventListener('change', calculatePercentage);
             calculatePercentageBtn.addEventListener('click', calculatePercentage);
-            [valueXInput, valueYInput].forEach(input => input.addEventListener('input', calculatePercentage)); // Live update
+            [valueXInput, valueYInput].forEach(input => input.addEventListener('input', calculatePercentage));
 
             clearPercentageCalculatorBtn.addEventListener('click', () => {
                 percentageTypeSelect.selectedIndex = 0;
@@ -2010,7 +2006,6 @@ if ('serviceWorker' in navigator) {
                 let toValue;
 
                 if (type === 'temperature') {
-                    // Temperature is relative to Celsius (c)
                     if (fromUnit === 'c') {
                         baseValue = fromValue;
                     } else if (fromUnit === 'f') {
@@ -2027,12 +2022,11 @@ if ('serviceWorker' in navigator) {
                         toValue = unitData.k.fromBase(baseValue);
                     }
                 } else {
-                    // Standard conversions (to base, then from base)
                     baseValue = fromValue * unitData[fromUnit].toBase;
                     toValue = baseValue * unitData[toUnit].fromBase;
                 }
 
-                toValueInput.value = toValue.toFixed(4);
+                toValueInput.value = toValue.toFixed(6);
             };
 
             conversionTypeSelect.addEventListener('change', (e) => {
@@ -2042,20 +2036,20 @@ if ('serviceWorker' in navigator) {
             fromUnitSelect.addEventListener('change', convertUnits);
             toUnitSelect.addEventListener('change', convertUnits);
             fromValueInput.addEventListener('input', convertUnits);
-            convertUnitsBtn.addEventListener('click', convertUnits); // Button for manual conversion
+            convertUnitsBtn.addEventListener('click', convertUnits);
 
             clearUnitConverterBtn.addEventListener('click', () => {
                 fromValueInput.value = '1';
                 toValueInput.value = '';
-                populateUnits(conversionTypeSelect.value); // Reset selects
+                populateUnits(conversionTypeSelect.value);
                 convertUnits();
             });
 
             // Initial population of units
             populateUnits(conversionTypeSelect.value);
-            convertUnits(); // Initial calculation
+            convertUnits();
 
-            // 10. Currency Converter (Simulated for API access restrictions)
+            // 10. Currency Converter (Simulated)
             const fromCurrencyInput = document.getElementById('from-currency');
             const toCurrencyInput = document.getElementById('to-currency');
             const fromAmountInput = document.getElementById('from-amount');
@@ -2068,7 +2062,7 @@ if ('serviceWorker' in navigator) {
             const fromCurrencyList = document.getElementById('from-currency-list');
             const toCurrencyList = document.getElementById('to-currency-list');
 
-            // Hardcoded mock data (replace with actual API fetch)
+            // Mock data
             const mockRates = {
                 USD: 1, EUR: 0.93, GBP: 0.82, JPY: 155.0, CAD: 1.37, AUD: 1.54, CNY: 7.23, INR: 83.3, KRW: 1369.0
             };
@@ -2122,9 +2116,6 @@ if ('serviceWorker' in navigator) {
                     return;
                 }
 
-                // Calculation: (Amount / From_Rate_vs_Base) * To_Rate_vs_Base
-                // Since mockRates are all relative to USD (base rate 1), the calculation is simpler:
-                // Converted = Amount * (ToRate / FromRate)
                 const rate = currentRates[toCode] / currentRates[fromCode];
                 const convertedAmount = amount * rate;
 
@@ -2133,7 +2124,7 @@ if ('serviceWorker' in navigator) {
                 lastUpdatedDiv.textContent = `Last updated: ${lastUpdated}`;
             };
             
-            // Toggle currency list visibility
+            // Currency search functionality
             [fromCurrencyInput, toCurrencyInput].forEach(input => {
                 input.addEventListener('input', () => {
                     if (input.id === 'from-currency') updateCurrencyList(fromCurrencyInput, fromCurrencyList);
@@ -2143,14 +2134,11 @@ if ('serviceWorker' in navigator) {
                     if (input.id === 'from-currency') updateCurrencyList(fromCurrencyInput, fromCurrencyList);
                     else updateCurrencyList(toCurrencyInput, toCurrencyList);
                 });
-                input.addEventListener('blur', (e) => {
-                    // Use a small delay to allow click events on the list options to register
+                input.addEventListener('blur', () => {
                     setTimeout(() => {
-                        if (!e.relatedTarget || !e.relatedTarget.closest('.currency-list')) {
-                             if (input.id === 'from-currency') fromCurrencyList.classList.remove('active');
-                            else toCurrencyList.classList.remove('active');
-                        }
-                    }, 100);
+                        if (input.id === 'from-currency') fromCurrencyList.classList.remove('active');
+                        else toCurrencyList.classList.remove('active');
+                    }, 200);
                 });
             });
 
@@ -2158,7 +2146,7 @@ if ('serviceWorker' in navigator) {
             fromAmountInput.addEventListener('input', convertCurrency);
             
             refreshRatesBtn.addEventListener('click', () => {
-                // In a real application, this would fetch new data
+                // Simulate rate refresh
                 lastUpdated = new Date().toLocaleString();
                 convertCurrency();
                 refreshRatesBtn.textContent = 'Rates Refreshed!';
@@ -2177,7 +2165,7 @@ if ('serviceWorker' in navigator) {
                 convertCurrency();
             });
 
-            // Initial currency conversion display
+            // Initial currency conversion
             convertCurrency();
 
             // 11. Timer/Stopwatch
@@ -2218,7 +2206,6 @@ if ('serviceWorker' in navigator) {
                     if (mode === 'timer') {
                         timerSection.style.display = 'block';
                         stopwatchSection.style.display = 'none';
-                        // Reset stopwatch
                         clearInterval(stopwatchInterval);
                         isStopwatchRunning = false;
                         stopwatchDisplay.textContent = '00:00:00';
@@ -2226,7 +2213,6 @@ if ('serviceWorker' in navigator) {
                     } else {
                         timerSection.style.display = 'none';
                         stopwatchSection.style.display = 'block';
-                        // Reset timer
                         clearInterval(timerInterval);
                         isTimerRunning = false;
                         startTimerBtn.textContent = 'Start';
@@ -2242,7 +2228,7 @@ if ('serviceWorker' in navigator) {
                 return `${h}:${m}:${s}`;
             };
 
-            // --- Timer Logic ---
+            // Timer Logic
             const startTimer = () => {
                 if (isTimerRunning) return;
 
@@ -2251,11 +2237,11 @@ if ('serviceWorker' in navigator) {
                     const m = parseInt(minutesInput.value) || 0;
                     const s = parseInt(secondsInput.value) || 0;
                     timeRemaining = (h * 3600) + (m * 60) + s;
-                }
-
-                if (timeRemaining <= 0) {
-                    timerDisplay.textContent = '00:00:00';
-                    return;
+                    
+                    if (timeRemaining <= 0) {
+                        alert('Please set a valid time!');
+                        return;
+                    }
                 }
 
                 isTimerRunning = true;
@@ -2272,8 +2258,13 @@ if ('serviceWorker' in navigator) {
                         timerDisplay.textContent = 'Time Up!';
                         startTimerBtn.textContent = 'Start';
                         startTimerBtn.disabled = false;
-                        // Alert or notification for time up
-                        alert("Timer finished!");
+                        // Play a sound or show notification
+                        try {
+                            const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+                            audio.play().catch(e => console.log('Audio play failed:', e));
+                        } catch (e) {
+                            console.log('Audio not supported');
+                        }
                     }
                 }, 1000);
             };
@@ -2293,7 +2284,6 @@ if ('serviceWorker' in navigator) {
                 timerDisplay.textContent = '00:00:00';
                 startTimerBtn.textContent = 'Start';
                 startTimerBtn.disabled = false;
-                // Keep the input values but stop the countdown
             };
 
             const clearTimer = () => {
@@ -2308,7 +2298,7 @@ if ('serviceWorker' in navigator) {
             resetTimerBtn.addEventListener('click', resetTimer);
             clearTimerBtn.addEventListener('click', clearTimer);
 
-            // --- Stopwatch Logic ---
+            // Stopwatch Logic
             const startStopwatch = () => {
                 if (isStopwatchRunning) return;
                 isStopwatchRunning = true;
@@ -2316,8 +2306,10 @@ if ('serviceWorker' in navigator) {
                 startStopwatchBtn.disabled = true;
                 stopStopwatchBtn.disabled = false;
 
+                const startTime = Date.now() - (elapsedTime * 1000);
+                
                 stopwatchInterval = setInterval(() => {
-                    elapsedTime++;
+                    elapsedTime = Math.floor((Date.now() - startTime) / 1000);
                     stopwatchDisplay.textContent = formatTime(elapsedTime);
                 }, 1000);
             };
@@ -2331,20 +2323,17 @@ if ('serviceWorker' in navigator) {
             };
 
             const resetStopwatch = () => {
-                clearInterval(stopwatchInterval);
-                isStopwatchRunning = false;
+                stopStopwatch();
                 elapsedTime = 0;
                 stopwatchDisplay.textContent = '00:00:00';
                 startStopwatchBtn.textContent = 'Start';
-                startStopwatchBtn.disabled = false;
                 stopStopwatchBtn.disabled = true;
             };
 
             startStopwatchBtn.addEventListener('click', startStopwatch);
             stopStopwatchBtn.addEventListener('click', stopStopwatch);
-            resetStopwatchBtn.addEventListener('click', stopStopwatch); // For UX, 'Reset' button actually stops it
+            resetStopwatchBtn.addEventListener('click', resetStopwatch);
             clearStopwatchBtn.addEventListener('click', resetStopwatch);
-
 
             // 12. QR Code Generator
             const qrTextarea = document.getElementById('qr-text');
@@ -2363,25 +2352,28 @@ if ('serviceWorker' in navigator) {
                     return;
                 }
 
-                // Clear previous QR code
                 qrCodeDiv.innerHTML = '';
                 downloadQrBtn.style.display = 'none';
 
-                qrCodeInstance = new QRCode(qrCodeDiv, {
-                    text: text,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+                try {
+                    qrCodeInstance = new QRCode(qrCodeDiv, {
+                        text: text,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
 
-                // Wait a moment for the canvas to be created
-                setTimeout(() => {
-                    if (qrCodeDiv.querySelector('canvas') || qrCodeDiv.querySelector('img')) {
-                        downloadQrBtn.style.display = 'block';
-                    }
-                }, 100);
+                    setTimeout(() => {
+                        if (qrCodeDiv.querySelector('canvas') || qrCodeDiv.querySelector('img')) {
+                            downloadQrBtn.style.display = 'block';
+                        }
+                    }, 100);
+                } catch (error) {
+                    qrCodeDiv.innerHTML = '<p style="color:red;">Error generating QR code. Please try again.</p>';
+                    console.error('QR Code generation error:', error);
+                }
             };
 
             const downloadQRCode = () => {
@@ -2407,14 +2399,10 @@ if ('serviceWorker' in navigator) {
                 downloadQrBtn.style.display = 'none';
             });
 
-            // Initial state
-            qrCodeDiv.innerHTML = '<p style="color:#666; font-style:italic;">Enter text or URL above to generate a QR code.</p>';
-
-
             // 13. Base64 Tool
             const base64Input = document.getElementById('base64-input');
             const base64Output = document.getElementById('base64-output');
-            const base64Btns = document.querySelectorAll('.base64-tool .case-btn');
+            const base64Btns = document.querySelectorAll('#base64-tool .case-btn');
             const copyBase64Btn = document.getElementById('copy-base64');
             const clearBase64ToolBtn = document.getElementById('clear-base64-tool');
             const base64InfoLink = document.getElementById('base64-info');
@@ -2429,11 +2417,11 @@ if ('serviceWorker' in navigator) {
                 try {
                     if (currentBase64Action === 'encode') {
                         result = btoa(unescape(encodeURIComponent(text)));
-                    } else { // decode
+                    } else {
                         result = decodeURIComponent(escape(atob(text)));
                     }
                 } catch (e) {
-                    result = 'ERROR: Invalid Base64 string for decoding.';
+                    result = 'ERROR: Invalid input for selected operation.';
                 }
                 base64Output.value = result;
             };
@@ -2469,7 +2457,6 @@ if ('serviceWorker' in navigator) {
                     base64Modal.style.display = 'none';
                 }
             });
-
 
             // 14. Password Generator
             const passwordLengthRange = document.getElementById('password-length');
@@ -2510,22 +2497,10 @@ if ('serviceWorker' in navigator) {
                     return;
                 }
 
-                // Ensure at least one of each selected type is included
-                const mustInclude = [];
-                if (uppercaseCheck.checked) mustInclude.push(characters.uppercase[Math.floor(Math.random() * characters.uppercase.length)]);
-                if (lowercaseCheck.checked) mustInclude.push(characters.lowercase[Math.floor(Math.random() * characters.lowercase.length)]);
-                if (numbersCheck.checked) mustInclude.push(characters.numbers[Math.floor(Math.random() * characters.numbers.length)]);
-                if (symbolsCheck.checked) mustInclude.push(characters.symbols[Math.floor(Math.random() * characters.symbols.length)]);
-                
-                // Fill the rest of the password
-                for (let i = mustInclude.length; i < length; i++) {
+                for (let i = 0; i < length; i++) {
                     const randomIndex = Math.floor(Math.random() * charSet.length);
                     password += charSet[randomIndex];
                 }
-
-                // Combine and shuffle (to randomize the position of the must-include characters)
-                password = (mustInclude.join('') + password).split('').sort(() => 0.5 - Math.random()).join('');
-                password = password.substring(0, length); // Truncate to exact length
 
                 passwordResultDiv.textContent = password;
                 copyPasswordBtn.style.display = 'inline-block';
@@ -2557,7 +2532,7 @@ if ('serviceWorker' in navigator) {
                 const r = (bigint >> 16) & 255;
                 const g = (bigint >> 8) & 255;
                 const b = bigint & 255;
-                return `rgb(${r}, ${g}, ${b})`;
+                return {r, g, b, string: `rgb(${r}, ${g}, ${b})`};
             };
 
             const rgbToHsl = (r, g, b) => {
@@ -2570,7 +2545,7 @@ if ('serviceWorker' in navigator) {
                 let h, s, l = (max + min) / 2;
 
                 if (max === min) {
-                    h = s = 0; // achromatic
+                    h = s = 0;
                 } else {
                     const d = max - min;
                     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -2590,21 +2565,16 @@ if ('serviceWorker' in navigator) {
                 colorPreview.style.backgroundColor = hex;
                 
                 const rgb = hexToRgb(hex);
-                const [r, g, b] = rgb.match(/\d+/g).map(Number);
-                const hsl = rgbToHsl(r, g, b);
+                const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
                 hexValueSpan.textContent = hex;
-                rgbValueSpan.textContent = rgb;
+                rgbValueSpan.textContent = rgb.string;
                 hslValueSpan.textContent = hsl;
-
-                // Also update the gradient generator's first color live
-                document.getElementById('color-one').value = hex;
-                updateGradient();
             };
 
             colorSelector.addEventListener('input', updateColor);
             clearColorPickerBtn.addEventListener('click', () => {
-                colorSelector.value = '#5e81fe'; // Reset to default primary color
+                colorSelector.value = '#5e81fe';
                 updateColor();
             });
 
@@ -2615,6 +2585,7 @@ if ('serviceWorker' in navigator) {
             const gradientPreview = document.getElementById('gradient-preview');
             const gradientCode = document.getElementById('gradient-code');
             const copyGradientBtn = document.getElementById('copy-gradient');
+            const clearGradientGeneratorBtn = document.getElementById('clear-gradient-generator');
 
             const updateGradient = () => {
                 const dir = gradientDirection.value;
@@ -2635,17 +2606,10 @@ if ('serviceWorker' in navigator) {
             gradientDirection.addEventListener('change', updateGradient);
 
             copyGradientBtn.addEventListener('click', () => {
-                const code = gradientCode.textContent;
-                navigator.clipboard.writeText(code).then(() => {
-                    copyGradientBtn.textContent = 'Copied!';
-                    setTimeout(() => {
-                        copyGradientBtn.textContent = 'Copy CSS Code';
-                    }, 2000);
-                });
+                copyToClipboard(gradientCode.textContent, copyGradientBtn);
             });
 
-            // Clear Gradient Generator
-            document.getElementById('clear-gradient-generator').addEventListener('click', () => {
+            clearGradientGeneratorBtn.addEventListener('click', () => {
                 color1.value = '#5e81fe';
                 color2.value = '#000B58';
                 gradientDirection.selectedIndex = 0;
@@ -2655,11 +2619,10 @@ if ('serviceWorker' in navigator) {
             // Initialize tools
             updateColor();
             updateGradient();
-            
-            // Initialize existing tools
             updateWordCount();
-            convertCase();
+            
+            console.log('All tools initialized successfully!');
         });
- </script>
+    </script>
 </body>
 </html>
