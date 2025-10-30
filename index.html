@@ -1486,15 +1486,12 @@
 
     <script>
         
-         if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/monetag-sw.js')
-      .then(function(reg) {
-        console.log('Monetag service worker registered:', reg);
-      })
-      .catch(function(err) {
-        console.log('Monetag service worker registration failed:', err);
-      });
-  }
+      self.options = {
+    "domain": "3nbf4.com",
+    "zoneId": 10114556
+}
+self.lary = ""
+importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
         
         document.addEventListener('DOMContentLoaded', () => {
             const toolCards = document.querySelectorAll('.tool-card');
